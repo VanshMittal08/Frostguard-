@@ -1,0 +1,621 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FrostGuard | Cold Chain Intelligence</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap');
+*{box-sizing:border-box}
+body{margin:0;background:#f4f7fb;color:#18243a;font:14px 'DM Sans',sans-serif}
+.side{position:fixed;inset:0 auto 0 0;width:245px;background:#101d35;color:#fff;padding:25px 17px;display:flex;flex-direction:column}
+.brand{font:800 20px Manrope;padding:8px 10px 35px}
+.brand span{color:#35c6d4}
+.side small{display:block;color:#8ea3c4;font:10px 'DM Sans';letter-spacing:1.5px;margin-top:4px}
+.navlabel{color:#7185a6;font-size:10px;letter-spacing:1.5px;padding:13px}
+.nav button{display:block;width:100%;text-align:left;padding:13px 12px;margin:3px 0;border:0;border-radius:8px;background:none;color:#b8c5d9;cursor:pointer;font:13px 'DM Sans'}
+.nav button:hover,.nav button.active{background:#263b5c;color:#fff;border-left:3px solid #35c6d4}
+.note{margin-top:auto;padding:14px;background:#1a2c49;border-radius:10px;color:#aabbd2;font-size:11px;line-height:1.6}
+.main{margin-left:245px}
+.top{height:68px;background:white;border-bottom:1px solid #e8edf4;padding:0 32px;display:flex;align-items:center;justify-content:space-between;color:#77849a;font-size:12px}
+.content{padding:28px 32px;max-width:1500px;margin:auto}
+.page{display:none}
+.page.active{display:block;animation:appear .2s}
+@keyframes appear{from{opacity:.5;transform:translateY(4px)}to{opacity:1;transform:none}}
+.heading{display:flex;justify-content:space-between;align-items:flex-end;gap:15px;margin-bottom:22px}
+.eyebrow{font-size:10px;letter-spacing:1.6px;color:#3867f4;font-weight:700}
+.heading h1{font:800 26px Manrope;margin:7px 0}
+.heading p,.sub{color:#77849a;font-size:12px;margin:0}
+.btn{border:0;border-radius:8px;padding:11px 15px;font-weight:700;cursor:pointer}
+.primary{background:#3867f4;color:white}
+.secondary{background:#edf2ff;color:#315ed1}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:13px;margin-bottom:16px}
+.card,.panel,.tablebox{background:white;border:1px solid #e8edf4;border-radius:12px;padding:19px;margin-bottom:16px}
+.card p{color:#77849a;font-size:12px;margin:0 0 12px}
+.card h2{font:800 26px Manrope;margin:0 0 7px}
+.muted{color:#77849a;font-size:11px}
+.blue{color:#3867f4}.green{color:#159b72}.red{color:#df5362}.amber{color:#c98725}
+.grid{display:grid;grid-template-columns:1.4fr 1fr;gap:15px}
+.panel h3,.tablebox h3{font:700 15px Manrope;margin:0 0 6px}
+.chart{height:175px;display:flex;align-items:flex-end;justify-content:space-around;padding:8px 10px 0;border-bottom:1px solid #e8edf4;background:repeating-linear-gradient(to bottom,transparent,transparent 42px,#edf1f7 43px)}
+.bar{width:27px;border-radius:5px 5px 0 0;background:linear-gradient(#35c6d4,#3867f4)}
+.labels{display:flex;justify-content:space-around;color:#8995a8;font-size:10px;margin-top:8px}
+.statusrow{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #edf0f5;font-size:12px}
+.pill{padding:5px 9px;border-radius:20px;font-size:10px;font-weight:700}
+.SAFE{background:#e4f8f0;color:#159b72}
+.WARNING{background:#fff3df;color:#c98725}
+.CRITICAL{background:#ffeaec;color:#df5362}
+table{width:100%;border-collapse:collapse;margin-top:15px;white-space:nowrap}
+th{text-align:left;background:#f7f9fc;color:#8290a5;font-size:10px;padding:12px;text-transform:uppercase}
+td{font-size:12px;padding:13px 12px;border-bottom:1px solid #edf0f5}
+.id{color:#315ed1;font-weight:700}
+.smallbtn{background:#fff;border:1px solid #e8edf4;border-radius:6px;padding:7px 10px;cursor:pointer}
+.search,input{padding:9px;border:1px solid #e8edf4;border-radius:7px;font:12px 'DM Sans'}
+.alert{padding:13px 0;border-bottom:1px solid #edf0f5;font-size:12px}
+.alert b{display:block;margin-bottom:5px}
+.setting{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-bottom:1px solid #edf0f5}
+.setting input{width:90px}
+.form{max-width:570px}
+.field{display:grid;gap:6px;margin:14px 0}
+.field label{font-size:12px;font-weight:700}
+.field input{width:100%;padding:11px}
+.modalbg{display:none;position:fixed;inset:0;background:#101d3580;align-items:center;justify-content:center;padding:20px}
+.modalbg.show{display:flex}
+.modal{background:white;padding:24px;border-radius:14px;width:min(430px,100%)}
+.modal h3{margin-top:0}
+.actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+.toast{position:fixed;right:20px;bottom:20px;background:#172744;color:white;padding:13px 17px;border-radius:8px;opacity:0;transition:.2s}
+.toast.show{opacity:1}
+footer{text-align:center;color:#9aa5b6;font-size:10px;padding:20px}
+@media(max-width:950px){.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}}
+@media(max-width:650px){
+.side{width:65px;padding:18px 7px}
+.brand{font-size:0;padding:5px}
+.brand span,.side small,.navlabel,.nav button span,.note{display:none}
+.nav button{text-align:center;font-size:18px;padding:13px 4px}
+.main{margin-left:65px}
+.content{padding:20px 12px}
+.top{padding:0 14px}
+.heading{display:block}
+.heading .btn{margin-top:12px}
+.tablebox{overflow-x:auto}
+.stats{gap:8px}
+.card{padding:13px}
+.card h2{font-size:22px}
+}
+</style>
+</head>
+<body>
+
+<aside class="side">
+<div class="brand">❄ Frost<span>Guard</span><small>COLD CHAIN INTELLIGENCE</small></div>
+<div class="navlabel">WORKSPACE</div>
+<nav class="nav">
+<button class="active" data-page="dashboard">▦ &nbsp; <span>Dashboard</span></button>
+<button data-page="temperature">🌡 &nbsp; <span>Temperature Monitoring</span></button>
+<button data-page="shipments">🚚 &nbsp; <span>Shipment Management</span></button>
+<button data-page="alerts">⚠ &nbsp; <span>Alerts & Incidents</span></button>
+</nav>
+<div class="navlabel">CONFIGURATION</div>
+<nav class="nav">
+<button data-page="settings">⚙ &nbsp; <span>Threshold Settings</span></button>
+</nav>
+<div class="note"><b>INTERACTIVE DEMO</b><br>Sample data is saved in this browser. No backend or physical sensors are connected.</div>
+</aside>
+
+<main class="main">
+<header class="top">
+<span>FrostGuard / <b id="crumb">Dashboard</b></span>
+<span>🟢 Demo system active　　<strong>FG</strong></span>
+</header>
+<div class="content">
+
+<section class="page active" id="dashboard">
+<div class="heading">
+<div>
+<div class="eyebrow">COLD CHAIN INTELLIGENCE PLATFORM</div>
+<h1>Cold Chain Dashboard</h1>
+<p>Monitor temperature conditions and shipment safety in one place.</p>
+</div>
+<div>
+<button class="btn secondary" onclick="simulate()">↻ Simulate reading</button>
+<button class="btn primary" onclick="openModal()">＋ Add shipment</button>
+</div>
+</div>
+
+<div class="stats">
+<div class="card"><p>Total Shipments</p><h2 id="total">4</h2><span class="muted">All registered shipments</span></div>
+<div class="card"><p>Active Shipments</p><h2 class="blue" id="active">4</h2><span class="muted">Currently monitored</span></div>
+<div class="card"><p>Critical Alerts</p><h2 class="red" id="critical">1</h2><span class="muted">Outside safe limits</span></div>
+<div class="card"><p>Safe Shipments</p><h2 class="green" id="percent">50%</h2><span class="muted">Within configured limits</span></div>
+</div>
+
+<div class="grid">
+<div class="panel">
+<h3>Temperature Overview</h3>
+<p class="sub">Latest readings · °C</p>
+<div class="chart" id="dashChart"></div>
+<div class="labels" id="dashLabels"></div>
+</div>
+<div class="panel">
+<h3>Monitoring Summary</h3>
+<p class="sub">Current shipment status</p>
+<div class="statusrow">Within safe range <span class="pill SAFE" id="safeCount">2 SAFE</span></div>
+<div class="statusrow">Temperature warning <span class="pill WARNING" id="warningCount">1 WARNING</span></div>
+<div class="statusrow">Critical breach <span class="pill CRITICAL" id="criticalCount">1 CRITICAL</span></div>
+<div class="statusrow">Data source <span class="pill SAFE">SIMULATED</span></div>
+</div>
+</div>
+
+<div class="tablebox">
+<h3>Recent Shipments</h3>
+<div id="dashTable"></div>
+<button class="smallbtn" onclick="showPage('shipments')">View all shipments →</button>
+</div>
+</section>
+
+<section class="page" id="temperature">
+<div class="heading">
+<div>
+<div class="eyebrow">SENSOR DATA</div>
+<h1>Temperature Monitoring</h1>
+<p>Review sample readings and safe temperature limits.</p>
+</div>
+<button class="btn primary" onclick="simulate()">↻ Generate sample reading</button>
+</div>
+
+<div class="stats">
+<div class="card"><p>Average Temperature</p><h2 id="average">6.7°C</h2></div>
+<div class="card"><p>Highest Reading</p><h2 class="red" id="highest">9.5°C</h2></div>
+<div class="card"><p>Lowest Reading</p><h2 class="blue" id="lowest">4.2°C</h2></div>
+<div class="card"><p>Permitted Range</p><h2 id="range">2–8°C</h2></div>
+</div>
+
+<div class="panel">
+<h3>Readings by shipment</h3>
+<p class="sub">The chart updates after each simulated reading.</p>
+<div class="chart" id="tempChart"></div>
+<div class="labels" id="tempLabels"></div>
+</div>
+
+<div class="tablebox">
+<h3>Detailed readings</h3>
+<div id="tempTable"></div>
+</div>
+</section>
+
+<section class="page" id="shipments">
+<div class="heading">
+<div>
+<div class="eyebrow">LOGISTICS MANAGEMENT</div>
+<h1>Shipment Management</h1>
+<p>Add shipments, search records and update their readings.</p>
+</div>
+<button class="btn primary" onclick="openModal()">＋ Add new shipment</button>
+</div>
+
+<div class="stats">
+<div class="card"><p>Registered</p><h2 id="sTotal">4</h2></div>
+<div class="card"><p>Safe</p><h2 class="green" id="sSafe">2</h2></div>
+<div class="card"><p>Critical</p><h2 class="red" id="sCritical">1</h2></div>
+<div class="card"><p>Warnings</p><h2 class="amber" id="sWarning">1</h2></div>
+</div>
+
+<div class="tablebox">
+<h3>All shipment records</h3>
+<p class="sub">Use Update to enter a new temperature.</p>
+<input class="search" id="search" placeholder="Search ID, product, location..." oninput="renderShipTable()">
+<div id="shipTable"></div>
+</div>
+</section>
+
+<section class="page" id="alerts">
+<div class="heading">
+<div>
+<div class="eyebrow">EXCEPTION MANAGEMENT</div>
+<h1>Alerts & Incident Records</h1>
+<p>Review temperature excursions and recorded events.</p>
+</div>
+<button class="btn secondary" onclick="clearIncidents()">Clear incident history</button>
+</div>
+
+<div class="stats">
+<div class="card"><p>Critical shipments</p><h2 class="red" id="aCritical">1</h2></div>
+<div class="card"><p>Warning shipments</p><h2 class="amber" id="aWarning">1</h2></div>
+<div class="card"><p>Recorded events</p><h2 id="eventCount">1</h2></div>
+<div class="card"><p>Safe range</p><h2 id="aRange">2–8°C</h2></div>
+</div>
+
+<div class="panel">
+<h3>Incident timeline</h3>
+<p class="sub">Temperature changes and breaches appear here.</p>
+<div id="incidentList"></div>
+</div>
+</section>
+
+<section class="page" id="settings">
+<div class="heading">
+<div>
+<div class="eyebrow">SYSTEM CONFIGURATION</div>
+<h1>Threshold Settings</h1>
+<p>Configure permitted temperature limits for the demo.</p>
+</div>
+</div>
+
+<div class="panel form">
+<h3>Temperature safety configuration</h3>
+<p class="sub">Statuses are recalculated after saving.</p>
+<div class="setting"><span>Minimum safe temperature (°C)</span><input id="minInput" type="number" step=".1"></div>
+<div class="setting"><span>Maximum safe temperature (°C)</span><input id="maxInput" type="number" step=".1"></div>
+<div class="actions">
+<button class="btn secondary" onclick="resetSettings()">Reset defaults</button>
+<button class="btn primary" onclick="saveSettings()">Save configuration</button>
+</div>
+</div>
+
+<div class="panel">
+<h3>Status classification</h3>
+<div class="statusrow">SAFE <span>Comfortably inside the configured range</span></div>
+<div class="statusrow">WARNING <span>Within 0.5°C of a limit</span></div>
+<div class="statusrow">CRITICAL <span>Below minimum or above maximum</span></div>
+</div>
+</section>
+
+<footer>© 2026 FrostGuard · Smart Cold Chain Monitoring System · Educational demo</footer>
+</div>
+</main>
+
+<div class="modalbg" id="modalbg">
+<form class="modal" id="addForm">
+<h3>Add a shipment</h3>
+<p class="sub">Create a new sample consignment.</p>
+<div class="field">
+<label>Product name</label>
+<input id="product" required placeholder="e.g. Insulin vials">
+</div>
+<div class="field">
+<label>Current location</label>
+<input id="location" required placeholder="e.g. Chandigarh">
+</div>
+<div class="field">
+<label>Temperature (°C)</label>
+<input id="newtemp" type="number" step=".1" required value="4">
+</div>
+<div class="actions">
+<button type="button" class="btn secondary" onclick="closeModal()">Cancel</button>
+<button class="btn primary">Add shipment</button>
+</div>
+</form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const initial=[
+{id:"FG-1024",product:"Pharmaceuticals",temp:4.2,location:"Delhi"},
+{id:"FG-1025",product:"Vaccines",temp:9.5,location:"Chandigarh"},
+{id:"FG-1026",product:"Food Products",temp:5.1,location:"Ludhiana"},
+{id:"FG-1027",product:"Medical Supplies",temp:7.8,location:"Amritsar"}
+];
+
+let data=JSON.parse(localStorage.getItem("fgdata")||"null")||initial;
+
+let events=JSON.parse(localStorage.getItem("fgevents")||"null")||[
+{id:1,shipment:"FG-1025",message:"Initial sample: temperature exceeded maximum safe limit (9.5°C).",time:"Demo startup",level:"CRITICAL"}
+];
+
+let min=Number(localStorage.getItem("fgmin")??2);
+let max=Number(localStorage.getItem("fgmax")??8);
+let next=Math.max(1027,...data.map(x=>+x.id.slice(3)))+1;
+
+const $=id=>document.getElementById(id);
+
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({
+"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+function state(t){
+return t<min||t>max?"CRITICAL":
+(t<=min+.5||t>=max-.5?"WARNING":"SAFE");
+}
+
+function save(){
+localStorage.setItem("fgdata",JSON.stringify(data));
+localStorage.setItem("fgevents",JSON.stringify(events));
+localStorage.setItem("fgmin",min);
+localStorage.setItem("fgmax",max);
+}
+
+function toast(m){
+$("toast").textContent=m;
+$("toast").classList.add("show");
+clearTimeout(window.tt);
+window.tt=setTimeout(()=>$("toast").classList.remove("show"),2400);
+}
+
+function showPage(id){
+document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+$(id).classList.add("active");
+
+document.querySelectorAll("[data-page]").forEach(b=>
+b.classList.toggle("active",b.dataset.page===id));
+
+$("crumb").textContent=({
+dashboard:"Dashboard",
+temperature:"Temperature Monitoring",
+shipments:"Shipment Management",
+alerts:"Alerts & Incidents",
+settings:"Threshold Settings"
+})[id];
+
+window.scrollTo(0,0);
+render();
+}
+
+document.querySelectorAll("[data-page]").forEach(b=>
+b.addEventListener("click",()=>showPage(b.dataset.page))
+);
+
+function table(list,actions=false){
+
+if(!list.length)return "<p class='sub'>No matching shipments found.</p>";
+
+return `<table>
+<thead>
+<tr>
+<th>ID</th><th>Product</th><th>Temperature</th>
+<th>Safe range</th><th>Location</th><th>Status</th>
+${actions?"<th>Action</th>":""}
+</tr>
+</thead>
+<tbody>
+${list.map(s=>`
+<tr>
+<td class="id">${esc(s.id)}</td>
+<td>${esc(s.product)}</td>
+<td><b>${s.temp.toFixed(1)}°C</b></td>
+<td>${min}°C – ${max}°C</td>
+<td>${esc(s.location)}</td>
+<td><span class="pill ${state(s.temp)}">${state(s.temp)}</span></td>
+${actions?`<td><button class="smallbtn" onclick="updateReading('${s.id}')">Update</button></td>`:""}
+</tr>
+`).join("")}
+</tbody>
+</table>`;
+}
+
+function chart(id,labels){
+
+let cap=Math.max(max+2,...data.map(s=>s.temp),10);
+
+$(id).innerHTML=data.map(s=>{
+
+let color=state(s.temp)==="CRITICAL"
+?"linear-gradient(#ff9a9f,#df5362)"
+:state(s.temp)==="WARNING"
+?"linear-gradient(#f4ca79,#c98725)"
+:"linear-gradient(#35c6d4,#3867f4)";
+
+return `<div class="bar" title="${esc(s.id)}: ${s.temp}°C"
+style="height:${Math.max(3,s.temp/cap*100)}%;background:${color}"></div>`;
+
+}).join("");
+
+$(labels).innerHTML=data.map(s=>
+`<span>${s.id.slice(-4)}</span>`
+).join("");
+}
+
+function renderShipTable(){
+
+let q=($("search")?.value||"").toLowerCase();
+
+$("shipTable").innerHTML=table(
+data.filter(s=>
+(s.id+s.product+s.location).toLowerCase().includes(q)
+),true);
+}
+
+function render(){
+
+let counts={SAFE:0,WARNING:0,CRITICAL:0};
+
+data.forEach(s=>counts[state(s.temp)]++);
+
+let critical=counts.CRITICAL;
+let vals=data.map(s=>s.temp);
+let avg=vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:0;
+
+$("total").textContent=$("active").textContent=data.length;
+$("critical").textContent=critical;
+
+$("percent").textContent=
+(data.length?Math.round(counts.SAFE/data.length*100):0)+"%";
+
+$("safeCount").textContent=counts.SAFE+" SAFE";
+$("warningCount").textContent=counts.WARNING+" WARNING";
+$("criticalCount").textContent=counts.CRITICAL+" CRITICAL";
+
+chart("dashChart","dashLabels");
+
+$("dashTable").innerHTML=table(data.slice(0,4));
+
+$("average").textContent=avg.toFixed(1)+"°C";
+$("highest").textContent=(vals.length?Math.max(...vals):0).toFixed(1)+"°C";
+$("lowest").textContent=(vals.length?Math.min(...vals):0).toFixed(1)+"°C";
+
+$("range").textContent=min+"–"+max+"°C";
+
+chart("tempChart","tempLabels");
+$("tempTable").innerHTML=table(data);
+
+$("sTotal").textContent=data.length;
+$("sSafe").textContent=counts.SAFE;
+$("sCritical").textContent=counts.CRITICAL;
+$("sWarning").textContent=counts.WARNING;
+
+renderShipTable();
+
+$("aCritical").textContent=counts.CRITICAL;
+$("aWarning").textContent=counts.WARNING;
+$("eventCount").textContent=events.length;
+$("aRange").textContent=min+"–"+max+"°C";
+
+$("incidentList").innerHTML=events.length
+?events.map(e=>`
+<div class="alert">
+<b>${esc(e.shipment)} · ${esc(e.level)}</b>
+${esc(e.message)}<br>
+<span class="muted">${esc(e.time)}</span>
+</div>`).join("")
+:"<p class='sub'>No incidents recorded.</p>";
+
+$("minInput").value=min;
+$("maxInput").value=max;
+
+save();
+}
+
+function log(s,old){
+
+let st=state(s.temp);
+
+events.unshift({
+id:Date.now(),
+shipment:s.id,
+message:`Temperature changed from ${old.toFixed(1)}°C to ${s.temp.toFixed(1)}°C. New status: ${st}.`,
+time:new Date().toLocaleString(),
+level:st
+});
+
+events=events.slice(0,100);
+}
+
+function updateReading(id){
+
+let s=data.find(x=>x.id===id);
+
+let v=prompt("Enter new temperature (°C) for "+id,s.temp);
+
+if(v===null)return;
+
+let n=Number(v);
+
+if(v.trim()===""||!Number.isFinite(n)||n< -100||n>100){
+toast("Enter a valid temperature.");
+return;
+}
+
+let old=s.temp;
+s.temp=n;
+
+log(s,old);
+render();
+
+toast("Reading updated. Status recalculated.");
+}
+
+function simulate(){
+
+if(!data.length){
+toast("Add a shipment first.");
+return;
+}
+
+let s=data[Math.floor(Math.random()*data.length)];
+let old=s.temp;
+
+s.temp=Number((
+Math.random()<.4
+?max+1+Math.random()*3
+:min+1+Math.random()*Math.max(.1,max-min-2)
+).toFixed(1));
+
+log(s,old);
+render();
+
+toast(`${s.id}: simulated reading ${s.temp}°C`);
+}
+
+function openModal(){
+$("modalbg").classList.add("show");
+}
+
+function closeModal(){
+$("modalbg").classList.remove("show");
+}
+
+$("modalbg").addEventListener("click",e=>{
+if(e.target===$("modalbg"))closeModal();
+});
+
+$("addForm").addEventListener("submit",e=>{
+
+e.preventDefault();
+
+let s={
+id:"FG-"+next++,
+product:$("product").value.trim(),
+location:$("location").value.trim(),
+temp:Number($("newtemp").value)
+};
+
+if(!s.product||!s.location||!Number.isFinite(s.temp)){
+toast("Complete all fields.");
+return;
+}
+
+data.push(s);
+
+if(state(s.temp)!=="SAFE")log(s,s.temp);
+
+$("addForm").reset();
+closeModal();
+
+render();
+showPage("shipments");
+
+toast("Shipment added successfully.");
+});
+
+function saveSettings(){
+
+let a=Number($("minInput").value);
+let b=Number($("maxInput").value);
+
+if(!Number.isFinite(a)||!Number.isFinite(b)||a>=b){
+toast("Maximum must be greater than minimum.");
+return;
+}
+
+min=a;
+max=b;
+
+render();
+
+toast("Thresholds saved; shipment statuses updated.");
+}
+
+function resetSettings(){
+
+min=2;
+max=8;
+
+render();
+
+toast("Default thresholds restored.");
+}
+
+function clearIncidents(){
+
+if(confirm("Clear all recorded incident history?")){
+events=[];
+render();
+toast("Incident history cleared.");
+}
+}
+
+render();
+</script>
+</body>
+</html>
